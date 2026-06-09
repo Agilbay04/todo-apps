@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Membuka jalur port 5000 di dalam container
-EXPOSE 5000
+EXPOSE 5005
 
 # Menjalankan aplikasi Flask saat container dinyalakan
 CMD ["python", "app.py"]

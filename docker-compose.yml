@@ -23,9 +23,9 @@ services:
     build: .
     # Otomatis menyalakan ulang aplikasi web jika container crash
     restart: unless-stopped
-    # Menghubungkan port 5005 laptop ke port 5000 tempat Flask berjalan
+    # Menghubungkan port 5005 laptop ke port 5005 tempat Flask berjalan
     ports:
-      - "5005:5000"
+      - "5005:${APP_PORT}"
     # Menyuntikkan konfigurasi database dari file .env ke dalam aplikasi
     environment:
       - DB_PROVIDER=${DB_PROVIDER}
@@ -33,7 +33,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       # Mengarahkan koneksi host ke service 'db' (bukan localhost)
       - DB_HOST=db 
-      - DB_PORT=5432
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
     # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
     depends_on:

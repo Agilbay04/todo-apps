@@ -1,19 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get APP configuration
+app_host = os.environ.get('APP_HOST', '0.0.0.0')
+app_port = int(os.environ.get('APP_PORT', 5005))
+app_env = os.environ.get('APP_ENV', 'dev')
+
 # Get DB configuration
-provider = os.environ.get('DB_PROVIDER')
-user = os.environ.get('DB_USER')
-password = os.environ.get('DB_PASSWORD')
-host = os.environ.get('DB_HOST')
-port = os.environ.get('DB_PORT')
+db_provider = os.environ.get('DB_PROVIDER')
+db_user = os.environ.get('DB_USER')
+db_password = os.environ.get('DB_PASSWORD')
+db_host = os.environ.get('DB_HOST')
+db_port = os.environ.get('DB_PORT')
 db_name = os.environ.get('DB_NAME')
 
 # Configure SQLAlchemy with the database URL
-app.config['SQLALCHEMY_DATABASE_URI'] = f"{provider}://{user}:{password}@{host}:{port}/{db_name}"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"{db_provider}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
@@ -60,4 +69,4 @@ def delete(id):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host=app_host, port=app_port, debug=(app_env == 'dev'))
