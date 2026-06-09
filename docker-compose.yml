@@ -1,0 +1,44 @@
+services:
+  # --- CONTAINER DATABASE ---
+  db:
+    # Mengunduh image database PostgreSQL 15 versi Alpine (super kecil)
+    image: postgres:15-alpine
+    # Otomatis menyalakan ulang database jika container crash
+    restart: unless-stopped
+    # Menghubungkan port 5432 laptop ke port 5432 container
+    ports:
+      - "5432:5432"
+    # Mengisi username, password, dan nama database dari file .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    # Membuat folder khusus untuk penyimpanan data database agar tidak hilang saat container dihapus
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # --- CONTAINER APLIKASI WEB ---
+  web:
+    # Mem-build Image lokal menggunakan instruksi dari Dockerfile (. artinya folder ini)
+    build: .
+    # Otomatis menyalakan ulang aplikasi web jika container crash
+    restart: unless-stopped
+    # Menghubungkan port 5005 laptop ke port 5000 tempat Flask berjalan
+    ports:
+      - "5005:5000"
+    # Menyuntikkan konfigurasi database dari file .env ke dalam aplikasi
+    environment:
+      - DB_PROVIDER=${DB_PROVIDER}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      # Mengarahkan koneksi host ke service 'db' (bukan localhost)
+      - DB_HOST=db 
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+    # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
+    depends_on:
+      - db
+
+# Membuat ruang penyimpanan data (harddisk virtual) di luar container
+volumes:
+  pgdata:
