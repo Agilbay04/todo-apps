@@ -1,14 +1,16 @@
 services:
   # --- CONTAINER DATABASE ---
   db:
-    # Mengunduh image database PostgreSQL 15 versi Alpine (super kecil)
+    # Nama container (opsional, tapi memudahkan referensi)
+    container_name: todo-db
+    # Mengunduh image database PostgreSQL 15 versi Alpine (versi ringan)
     image: postgres:15-alpine
-    # Otomatis menyalakan ulang database jika container crash
+    # Restart secara otomatis jika container crash, tapi tidak restart jika kita matikan manual
     restart: unless-stopped
     # Menghubungkan port 5432 laptop ke port 5432 container
     ports:
-      - "5432:5432"
-    # Mengisi username, password, dan nama database dari file .env
+      - "5432:${DB_PORT}"
+    # Ambil konfigurasi username, password, dan nama database dari file .env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -19,22 +21,31 @@ services:
 
   # --- CONTAINER APLIKASI WEB ---
   web:
+    # Nama container (opsional, tapi memudahkan referensi)
+    container_name: todo-web
     # Mem-build Image lokal menggunakan instruksi dari Dockerfile (. artinya folder ini)
     build: .
-    # Otomatis menyalakan ulang aplikasi web jika container crash
+    # Restart secara otomatis jika container crash, tapi tidak restart jika kita matikan manual
     restart: unless-stopped
     # Menghubungkan port 5005 laptop ke port 5005 tempat Flask berjalan
     ports:
       - "5005:${APP_PORT}"
-    # Menyuntikkan konfigurasi database dari file .env ke dalam aplikasi
+    # Ambil konfigurasi database dari file .env ke dalam aplikasi
     environment:
+      # --- Konfigurasi Aplikasi ---
+      - APP_HOST=${APP_HOST}
+      - APP_PORT=${APP_PORT}
+      - APP_ENV=${APP_ENV}
+
+      # --- Konfigurasi Database ---
       - DB_PROVIDER=${DB_PROVIDER}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      # Mengarahkan koneksi host ke service 'db' (bukan localhost)
-      - DB_HOST=db 
+      - DB_HOST=db # Mengarahkan koneksi host ke service 'db' (bukan localhost)
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
+    volumes:
+      - .:/app # Mount seluruh folder ini ke dalam container di /app (imutabel, perubahan langsung terlihat di container)
     # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
     depends_on:
       - db
