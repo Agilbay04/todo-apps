@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
+import time
 import os
 
 app = Flask(__name__)
@@ -80,8 +81,17 @@ app.jinja_env.filters['localtime'] = filter_datetime
 
 
 def create_tables():
-    with app.app_context():
-        db.create_all()
+    retries = 5
+    for attempt in range(retries):
+        try:
+            with app.app_context():
+                db.create_all()
+            return
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(3)
+            else:
+                raise
 
 
 # Run the Flask app
