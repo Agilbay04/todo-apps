@@ -44,8 +44,6 @@ services:
       - DB_HOST=db # Mengarahkan koneksi host ke service 'db' (bukan localhost)
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
-    volumes:
-      - .:/app # Mount seluruh folder ini ke dalam container di /app (imutabel, perubahan langsung terlihat di container)
     # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
     depends_on:
       - db

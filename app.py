@@ -79,8 +79,12 @@ def filter_datetime(dt, tz=ZoneInfo('Asia/Jakarta')):
 app.jinja_env.filters['localtime'] = filter_datetime
 
 
-# Run the Flask app
-if __name__ == "__main__":
+def create_tables():
     with app.app_context():
         db.create_all()
+
+
+# Run the Flask app
+if __name__ == "__main__":
+    create_tables()
     app.run(host=app_host, port=app_port, debug=(app_env == 'dev'))
