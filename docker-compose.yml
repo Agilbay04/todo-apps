@@ -1,5 +1,5 @@
 services:
-  # --- CONTAINER DATABASE ---
+  # --- DATABASE ---
   db:
     # Nama container (opsional, tapi memudahkan referensi)
     container_name: todo-db
@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     # Menghubungkan port 5432 laptop ke port 5432 container
     ports:
-      - "5432:${DB_PORT}"
+      - "${DB_PORT}:5432"
     # Ambil konfigurasi username, password, dan nama database dari file .env
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -18,8 +18,11 @@ services:
     # Membuat folder khusus untuk penyimpanan data database agar tidak hilang saat container dihapus
     volumes:
       - pgdata:/var/lib/postgresql/data
+    # Menggunakan network 'todo-network' untuk komunikasi antar container
+    networks:
+      - todo-network
 
-  # --- CONTAINER APLIKASI WEB ---
+  # --- APLIKASI WEB ---
   web:
     # Nama container (opsional, tapi memudahkan referensi)
     container_name: todo-web
@@ -29,7 +32,7 @@ services:
     restart: unless-stopped
     # Menghubungkan port 5005 laptop ke port 5005 tempat Flask berjalan
     ports:
-      - "5005:${APP_PORT}"
+      - "${APP_PORT}:5005"
     # Ambil konfigurasi database dari file .env ke dalam aplikasi
     environment:
       # --- Konfigurasi Aplikasi ---
@@ -47,7 +50,18 @@ services:
     # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
     depends_on:
       - db
+    # Mounting folder lokal ke dalam container (hot reloading)
+    # volumes:
+    #   - .:/app
+    # Menggunakan network 'todo-network' untuk komunikasi antar container
+    networks:
+      - todo-network
 
 # Membuat ruang penyimpanan data (harddisk virtual) di luar container
 volumes:
   pgdata:
+
+# Membuat network baru
+networks:
+  todo-network:
+    driver: bridge
