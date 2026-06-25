@@ -17,6 +17,7 @@ COPY . .
 EXPOSE 5005
 
 # Menentukan command untuk menjalankan aplikasi Flask saat container dinyalakan
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-CMD ["/entrypoint.sh"]
+# COPY entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
+# CMD ["/entrypoint.sh"]
+CMD ["python", "app.py"]
