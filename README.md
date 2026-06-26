@@ -13,7 +13,7 @@ Todo app sederhana berbasis Flask dan PostgreSQL yang di-dockerize.
 
 ```bash
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 ```
 
 Buka `http://localhost:5005`
