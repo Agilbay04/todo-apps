@@ -7,7 +7,7 @@ services:
     image: postgres:15-alpine
     # Restart secara otomatis jika container crash, tapi tidak restart jika kita matikan manual
     restart: unless-stopped
-    # Menghubungkan port 5432 laptop ke port 5432 container
+    # Menghubungkan port 5432 di host ke port 5432 di container
     ports:
       - "${DB_PORT}:5432"
     # Ambil konfigurasi username, password, dan nama database dari file .env
@@ -30,23 +30,15 @@ services:
     build: .
     # Restart secara otomatis jika container crash, tapi tidak restart jika kita matikan manual
     restart: unless-stopped
-    # Menghubungkan port 5005 laptop ke port 5005 tempat Flask berjalan
+    # Menghubungkan port 5005 di host ke port 5005 tempat Flask berjalan
     ports:
       - "${APP_PORT}:5005"
-    # Ambil konfigurasi database dari file .env ke dalam aplikasi
+    # Ambil konfigurasi dari file .env ke dalam container
+    env_file:
+      - .env
+    # Override DB_HOST agar mengarah ke service db (bukan localhost dari .env)
     environment:
-      # --- Konfigurasi Aplikasi ---
-      - APP_HOST=${APP_HOST}
-      - APP_PORT=${APP_PORT}
-      - APP_ENV=${APP_ENV}
-
-      # --- Konfigurasi Database ---
-      - DB_PROVIDER=${DB_PROVIDER}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db # Mengarahkan koneksi host ke service 'db' (bukan localhost)
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
+      - DB_HOST=db
     # Memastikan database (db) harus nyala duluan sebelum web (Flask) berjalan
     depends_on:
       - db

@@ -1,23 +1,26 @@
 # Mengambil base image Python 3.10 versi slim (versi ringan)
 FROM python:3.10-slim
 
-# Membuat dan pindah ke folder /app di dalam container
+# Membuat dan pindah ke folder /app di dalam image
 WORKDIR /app
 
-# Menyalin file requirements.txt dari laptop ke container
+# Menyalin file requirements.txt dari host ke image
 COPY requirements.txt .
 
-# Menginstal semua library yang dibutuhkan
+# Menginstal semua library yang dibutuhkan di dalam image
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Menyalin seluruh source code project dari laptop ke container
+# Menyalin seluruh source code dari host ke image
 COPY . .
 
-# Membuka jalur port 5005 di dalam container agar bisa diakses dari luar (laptop)
+# Membuka port 5005 agar bisa diakses dari luar container
 EXPOSE 5005
 
-# Menentukan command untuk menjalankan aplikasi Flask saat container dinyalakan
-# COPY entrypoint.sh /entrypoint.sh
-# RUN chmod +x /entrypoint.sh
-# CMD ["/entrypoint.sh"]
-CMD ["python", "app.py"]
+# Menyalin entrypoint.sh dari host ke image
+COPY entrypoint.sh /entrypoint.sh
+
+# Memberi izin eksekusi file entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Menjalankan entrypoint.sh saat container dijalankan
+CMD ["/entrypoint.sh"]
